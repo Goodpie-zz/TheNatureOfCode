@@ -1,7 +1,9 @@
 package Chapters;
 
-import Objects.BouncingBall;
+import Objects.Mover;
+import Objects.RandomMover;
 import processing.core.PApplet;
+import processing.core.PVector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +11,8 @@ import java.util.List;
 public class Chapter01 extends PApplet
 {
 
-    List<BouncingBall> balls;
+    List<Mover> movers;
+    List<RandomMover> rMovers;
 
     public void settings()
     {
@@ -18,23 +21,25 @@ public class Chapter01 extends PApplet
 
     public void setup()
     {
-        balls = new ArrayList<>();
+        movers = new ArrayList<>();
+        rMovers = new ArrayList<>();
 
-        for (int i = 0; i <= 20; i++)
+        for (int i = 0; i <= 50; i++)
         {
-            balls.add(new BouncingBall(this));
+            movers.add(new Mover(this));
         }
-        System.out.printf("Height: %s\nWidth: %s%n", height, width);
+
     }
 
     public void draw()
     {
         background(255);
 
-        for (BouncingBall ball : balls)
+        for (Mover mover : movers)
         {
-            ball.step();
-            ball.draw();
+            mover.update(new PVector(mouseX, mouseY));
+            mover.checkEdges();
+            mover.draw();
         }
 
     }
