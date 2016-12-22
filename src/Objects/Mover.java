@@ -3,6 +3,9 @@ package Objects;
 import processing.core.PVector;
 import processing.core.PApplet;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Mover {
 
     protected PApplet app;
@@ -10,6 +13,7 @@ public class Mover {
     protected PVector velocity;
     protected PVector acceleration;
     protected float topSpeed;
+    protected ArrayList<Force> forces;
 
     /**
      * Constructs the bouncing ball with user defined parameters
@@ -25,6 +29,7 @@ public class Mover {
         this.velocity = velocity;
         this.acceleration = acceleration;
         this.topSpeed = topSpeed;
+        this.forces = new ArrayList<>();
     }
 
     /**
@@ -39,6 +44,7 @@ public class Mover {
         this.velocity = new PVector(0, 0);
         this.acceleration = new PVector((float) 0.0, (float) 0.1);
         this.topSpeed = 10;
+        this.forces = new ArrayList<>();
     }
 
     /**
@@ -46,25 +52,69 @@ public class Mover {
      */
     public void update()
     {
+        // Determine acceleration applied by forces
+        acceleration = addForces();
+
         // Add velocity to location
         velocity.add(acceleration);
         location.add(velocity);
 
         // Limit the speed
         velocity.limit(topSpeed);
+
+        // Reset acceleration
+        acceleration.mult(0);
     }
 
-    public void update(PVector point)
+    /**
+     * Determines the total amount of force being applied to the Mover
+     * @return  Total force
+     */
+    private PVector addForces()
     {
-        PVector dir = PVector.sub(point, location);
-        dir.normalize();
-        dir.mult((float) 0.5);
+        PVector forceSum = new PVector(0, 0);
+        for (Force force : forces)
+        {
+            forceSum.add(force.getForce());
+        }
 
-        acceleration = dir;
-
-        update();
+        return forceSum;
     }
 
+    public void addForce(Force newForce)
+    {
+        boolean forceFound = false;
+
+        // Check if force already exists in list of forces
+        for (Force force : forces)
+        {
+            if (force.getName().equals(newForce.getName()))
+            {
+                force.setForce(newForce.getForce());
+                forceFound = true;
+                break;
+            }
+        }
+
+        // Force doesn't exist, add it to list of forces
+        if (!forceFound)
+        {
+            forces.add(newForce);
+        }
+    }
+
+    public void addForces(List<Force> forces)
+    {
+        for (Force force : forces)
+        {
+            addForce(force);
+        }
+    }
+
+
+    /**
+     * Ensures the mover doesn't go out of screen bounds
+     */
     public void checkEdges()
     {
         // Check that we aren't going past the walls
