@@ -23,6 +23,7 @@ public class Attractor {
 
     public void display() {
         app.stroke(0);
+        app.strokeWeight(1);
         app.fill(175, 200);
         app.ellipse(location.x, location.y, (float) (mass * 1.5), (float) (mass * 1.5));
     }

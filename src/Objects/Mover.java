@@ -9,6 +9,7 @@ import java.util.List;
 import static Helpers.Constants.G;
 import static Helpers.Constants.MAX_SPEED;
 import static processing.core.PApplet.constrain;
+import static processing.core.PConstants.CENTER;
 
 public class Mover {
 
@@ -20,17 +21,9 @@ public class Mover {
     protected ArrayList<Force> forces;
     protected float mass;
 
-
-    public Mover(PApplet app, PVector location, PVector velocity, PVector acceleration, float topSpeed, float mass)
-    {
-        this.app = app;
-        this.location = location;
-        this.velocity = velocity;
-        this.acceleration = acceleration;
-        this.topSpeed = topSpeed;
-        this.forces = new ArrayList<>();
-        this.mass = mass;
-    }
+    private float angle;
+    private float aVelocity;
+    private float aAcceleration;
 
     /**
      * Constructs the Mover with random parameters
@@ -40,12 +33,15 @@ public class Mover {
     public Mover(PApplet app)
     {
         this.app = app;
-        this.location = new PVector( (float) (Math.random() * this.app.width + 1), (float) (Math.random() * this.app.height + 1));
+        this.location = new PVector(0, 0);
         this.velocity = new PVector(0, 0);
         this.acceleration = new PVector(0, 0);
         this.topSpeed = MAX_SPEED;
         this.forces = new ArrayList<>();
         this.mass = 1;
+        this.angle = 0;
+        this.aVelocity = 0;
+        this.aAcceleration = (float) 0.01;
     }
 
     /**
@@ -60,6 +56,11 @@ public class Mover {
         velocity.add(acceleration);
         location.add(velocity);
 
+        // Update the angular movement
+        aAcceleration = (float) (acceleration.x / 20.0);
+        aVelocity += aAcceleration;
+        angle += aVelocity;
+
         // Limit the speed
         velocity.limit(topSpeed);
 
@@ -72,8 +73,14 @@ public class Mover {
      */
     public void display() {
         app.stroke(0);
-        app.fill(175);
-        app.ellipse(location.x, location.y, (float) (mass * 2.5), (float) (mass * 2.5));
+        app.strokeWeight(2);
+        app.fill(175, 200);
+        app.rectMode(CENTER);
+        app.pushMatrix();
+        app.translate(location.x, location.y);
+        app.rotate(angle);
+        app.rect(0, 0, (float) (mass * 1.5), (float) (mass * 1.5));
+        app.popMatrix();
     }
 
     /**
@@ -207,23 +214,39 @@ public class Mover {
         return location;
     }
 
+    public void setLocation(PVector location) {
+        this.location = location;
+    }
+
     public PVector getVelocity() {
         return velocity;
+    }
+
+    public void setVelocity(PVector velocity) {
+        this.velocity = velocity;
     }
 
     public PVector getAcceleration() {
         return acceleration;
     }
 
+    public void setAcceleration(PVector acceleration) {
+        this.acceleration = acceleration;
+    }
+
     public float getTopSpeed() {
         return topSpeed;
+    }
+
+    public void setTopSpeed(float topSpeed) {
+        this.topSpeed = topSpeed;
     }
 
     public float getMass() {
         return mass;
     }
 
-
-
-
+    public void setMass(float mass) {
+        this.mass = mass;
+    }
 }

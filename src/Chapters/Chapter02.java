@@ -8,12 +8,11 @@ import processing.core.PVector;
 import java.util.ArrayList;
 import java.util.List;
 
-import static Helpers.Constants.MAX_SPEED;
 import static Helpers.Helpers.determineFriction;
 
 public class Chapter02 extends PApplet{
 
-    private static final int NUM_MOVERS = 50;
+    private static final int NUM_MOVERS = 10;
     private Attractor sun;
     private List<Mover> movers;
 
@@ -30,16 +29,11 @@ public class Chapter02 extends PApplet{
     {
         // Initialize the movers
         movers = new ArrayList<>();
-        for (int i = 0; i < NUM_MOVERS; i += 1)
-        {
-            movers.add(new Mover(
-                    this,
-                    new PVector((float) (Math.random() * width), (float) (Math.random() * height)),
-                    new PVector(0, 0),
-                    new PVector(0, 0),
-                    MAX_SPEED,
-                    (float) (Math.random() * 10 + 10)
-            ));
+        for (int i = 0; i < NUM_MOVERS; i += 1) {
+            Mover mover = new Mover(this);
+            mover.setLocation(new PVector((float) (Math.random() * width), (float) (Math.random() * height)));
+            mover.setMass((float) (Math.random() * 10 + 10));
+            movers.add(mover);
         }
 
         // Initialize the attractors
