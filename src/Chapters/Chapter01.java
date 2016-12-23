@@ -1,9 +1,7 @@
 package Chapters;
 
 import Objects.Mover;
-import Objects.RandomMover;
 import processing.core.PApplet;
-import processing.core.PVector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +10,10 @@ public class Chapter01 extends PApplet
 {
 
     List<Mover> movers;
-    List<RandomMover> rMovers;
+
+    public static void main(String... args) {
+        PApplet.main("Chapters.Chapter01");
+    }
 
     public void settings()
     {
@@ -22,7 +23,6 @@ public class Chapter01 extends PApplet
     public void setup()
     {
         movers = new ArrayList<>();
-        rMovers = new ArrayList<>();
 
         for (int i = 0; i <= 50; i++)
         {
@@ -39,14 +39,8 @@ public class Chapter01 extends PApplet
         {
             mover.update();
             mover.checkEdges();
-            mover.draw();
+            mover.display();
         }
 
-    }
-
-
-    public static void main(String... args)
-    {
-        PApplet.main("Chapters.Chapter01");
     }
 }

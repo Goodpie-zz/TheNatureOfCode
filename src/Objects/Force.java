@@ -25,6 +25,6 @@ public class Force {
     }
 
     public void setForce(PVector force) {
-        this.force = force;
+        this.force = force.copy();
     }
 }
