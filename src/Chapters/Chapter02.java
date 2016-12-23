@@ -13,7 +13,8 @@ import static Helpers.Helpers.determineFriction;
 
 public class Chapter02 extends PApplet{
 
-    Attractor sun;
+    private static final int NUM_MOVERS = 50;
+    private Attractor sun;
     private List<Mover> movers;
 
     public static void main(String... args) {
@@ -29,11 +30,11 @@ public class Chapter02 extends PApplet{
     {
         // Initialize the movers
         movers = new ArrayList<>();
-        for (int i = 0; i < 5; i += 1)
+        for (int i = 0; i < NUM_MOVERS; i += 1)
         {
             movers.add(new Mover(
                     this,
-                    new PVector(50 * i, 50),
+                    new PVector((float) (Math.random() * width), (float) (Math.random() * height)),
                     new PVector(0, 0),
                     new PVector(0, 0),
                     MAX_SPEED,
@@ -50,16 +51,29 @@ public class Chapter02 extends PApplet{
         background(255);
         sun.display();
 
-        for (Mover mover : movers)
+        for (int i = 0; i < NUM_MOVERS; i++)
         {
+            Mover mover = movers.get(i);
             float gravity = (float) (0.05 * mover.getMass());
+
+            // Apply gravity and wind forces
             // mover.applyForce(new Force(GRAVITY, new PVector(0, gravity)));
             // mover.applyForce(new Force(WIND, new PVector((float) 0.001, 0)));
+
+            // Apply friction
             mover.applyForce(determineFriction(mover.getVelocity()));
 
             // Apply attractor forces
             PVector sunForce = sun.attract(mover);
             mover.applyForce(sunForce);
+
+            // Apply attraction to other movers
+            for (int j = 0; j < NUM_MOVERS; j++) {
+                if (i != j) {
+                    PVector moverAttraction = mover.attract(movers.get(j));
+                    movers.get(j).applyForce(moverAttraction);
+                }
+            }
 
             mover.update();
             // mover.checkEdges();

@@ -6,7 +6,9 @@ import processing.core.PVector;
 import java.util.ArrayList;
 import java.util.List;
 
+import static Helpers.Constants.G;
 import static Helpers.Constants.MAX_SPEED;
+import static processing.core.PApplet.constrain;
 
 public class Mover {
 
@@ -52,7 +54,7 @@ public class Mover {
     public void update()
     {
         // Determine acceleration applied by forces
-        acceleration = acceleration.add(addForces());
+        acceleration = acceleration.add(calculateTotalForces());
 
         // Add velocity to location
         velocity.add(acceleration);
@@ -66,15 +68,84 @@ public class Mover {
     }
 
     /**
+     * Draw the ball to the main app
+     */
+    public void display() {
+        app.stroke(0);
+        app.fill(175);
+        app.ellipse(location.x, location.y, (float) (mass * 2.5), (float) (mass * 2.5));
+    }
+
+    /**
+     * Applies a single vector force to the Mover for one tick
+     *
+     * @param force Vector force to apply
+     */
+    public void applyForce(PVector force) {
+        PVector newForce = force.copy();
+        newForce.div(mass);
+        acceleration.add(newForce);
+    }
+
+    /**
+     * Applies a single force to the Mover for one tick
+     *
+     * @param force Vector force to apply
+     */
+    public void applyForce(Force force) {
+        PVector newForce = force.getForce().copy();
+        newForce.div(mass);
+        acceleration.add(newForce);
+    }
+
+    public PVector attract(Mover m) {
+        // Get easier to read var for location
+        PVector mLoc = m.getLocation().copy();
+
+        // Start by getting the distance to the Mover
+        PVector force = PVector.sub(location, mLoc);
+        float distance = force.mag();
+
+        // Ensure the distance doesn't exceed the following
+        distance = constrain(distance, 10, 50);
+
+        // Use basic gravitational pull equation
+        float strength = (G * mass * m.getMass()) / (distance * distance);
+
+        // Apply grav pull to force
+        force.normalize();
+        force.mult(strength);
+
+        return force;
+    }
+
+    /**
+     * Checks if the mover is currently inside a friction area
+     *
+     * @param fa The friction area to check
+     * @return Whether inside the friction area
+     */
+    public boolean insideFrictionArea(FrictionArea fa) {
+        boolean inside = false;
+
+        float faXRange = fa.getLocation().x + fa.getDimensions().x;
+        float faYRange = fa.getLocation().y + fa.getDimensions().y;
+        if ((location.x < faXRange && location.x > fa.getLocation().x) && (location.y < faYRange && location.y > fa.getLocation().y)) {
+            inside = true;
+        }
+
+        return inside;
+    }
+
+    /**
      * Determines the total amount of force being applied to the Mover
      * @return  Total force
      */
-    private PVector addForces()
+    private PVector calculateTotalForces()
     {
         PVector forceSum = new PVector(0, 0);
-        for (Force force : forces)
-        {
-            PVector tmpForce = force.getForce().get();
+        for (Force force : forces) {
+            PVector tmpForce = force.getForce().copy();
             tmpForce.div(mass);
             forceSum.add(tmpForce);
         }
@@ -116,31 +187,6 @@ public class Mover {
         }
     }
 
-    public void applyForce(Force force) {
-        // System.out.printf("Applying force: %s\nx = %f\ny = %f\n%n", force.getName(), force.getForce().x, force.getForce().y);
-        PVector newForce = force.getForce().copy();
-        newForce.div(mass);
-        acceleration.add(newForce);
-    }
-
-    public void applyForce(PVector force) {
-        PVector newForce = force.copy();
-        newForce.div(mass);
-        acceleration.add(newForce);
-    }
-
-    public boolean insideFrictionArea(FrictionArea fa) {
-        boolean inside = false;
-
-        float faXRange = fa.getLocation().x + fa.getDimensions().x;
-        float faYRange = fa.getLocation().y + fa.getDimensions().y;
-        if ((location.x < faXRange && location.x > fa.getLocation().x) && (location.y < faYRange && location.y > fa.getLocation().y)) {
-            inside = true;
-        }
-
-        return inside;
-    }
-
     /**
      * Ensures the mover doesn't go out of screen bounds
      */
@@ -156,56 +202,27 @@ public class Mover {
         }
     }
 
-    /**
-     * Draw the ball to the main app
-     */
-    public void display() {
-        app.stroke(0);
-        app.fill(175);
-        app.ellipse(location.x, location.y, (float) (mass * 2.5), (float) (mass * 2.5));
-    }
-
-    /* Getters and setters */
-
+    /* Getters */
     public PVector getLocation() {
         return location;
-    }
-
-    public void setLocation(PVector location) {
-        this.location = location;
     }
 
     public PVector getVelocity() {
         return velocity;
     }
 
-    public void setVelocity(PVector velocity) {
-        this.velocity = velocity;
-    }
-
     public PVector getAcceleration() {
         return acceleration;
-    }
-
-    public void setAcceleration(PVector acceleration) {
-        this.acceleration = acceleration;
     }
 
     public float getTopSpeed() {
         return topSpeed;
     }
 
-    public void setTopSpeed(float topSpeed) {
-        this.topSpeed = topSpeed;
-    }
-
     public float getMass() {
         return mass;
     }
 
-    public void setMass(float mass) {
-        this.mass = mass;
-    }
 
 
 
